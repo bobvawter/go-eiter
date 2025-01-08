@@ -9,9 +9,34 @@ import (
 	"maps"
 	"slices"
 	"strconv"
+	"testing"
 
 	"vawter.tech/eiter"
 )
+
+// This test would generate a runtime panic if the generator were to
+// continue calling the yield functions.
+func TestBreak(t *testing.T) {
+	for range Counter(3) {
+		break
+	}
+	for range Counter2(3) {
+		break
+	}
+	var err error
+	for range Counter(3).Unwrap(&err) {
+		break
+	}
+	for range Counter2(3).Unwrap(&err) {
+		break
+	}
+	for range eiter.Just(slices.Values([]int{0, 1, 2})) {
+		break
+	}
+	for range eiter.Just2(slices.All([]int{0, 1, 2})) {
+		break
+	}
+}
 
 // Counter emits the requested number of values and then an error.
 func Counter(ct int) eiter.Seq[int] {
